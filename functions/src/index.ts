@@ -1,14 +1,15 @@
-const { onDocumentWritten } = require("firebase-functions/v2/firestore");
-const { initializeApp } = require("firebase-admin/app");
-const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+import {onDocumentWritten} from "firebase-functions/v2/firestore";
+import {initializeApp} from "firebase-admin/app";
+import {getFirestore, FieldValue} from "firebase-admin/firestore";
+
 
 initializeApp();
 const db = getFirestore();
 
 exports.updateOnNoteChange = onDocumentWritten(
-    "notes/{noteId}",
+  "notes/{noteId}",
   async (event) => {
-    const noteData = event.data.after.data();
+    const noteData = event?.data?.after?.data();
     if (noteData) {
       const taskRef = noteData.taskRef;
       const taskDoc = await taskRef.get();
