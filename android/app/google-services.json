@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "450737453296",
+    "project_id": "empowerment-circle",
+    "storage_bucket": "empowerment-circle.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:450737453296:android:8164c3b5f7fa21ddc46a35",
+        "android_client_info": {
+          "package_name": "com.mycompany.entprojecttracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "450737453296-boiupek9qtd28ctfv37fe19qp1tb3ilf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmM_eNge6DpRbS43mSKXmvIpFRG0Qoibk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "450737453296-4hm3uffr000sa8m454r1pm5ijpmdpg3l.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "450737453296-ep2b9pp3trat72rrb9qg3utevu47a6iu.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mycompany.entprojecttracker"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
