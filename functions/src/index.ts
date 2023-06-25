@@ -6,7 +6,7 @@ initializeApp();
 const db = getFirestore();
 
 exports.updateOnNoteChange = onDocumentWritten(
-  "notes/{noteId}",
+    "notes/{noteId}",
   async (event) => {
     const noteData = event.data.after.data();
     if (noteData) {
