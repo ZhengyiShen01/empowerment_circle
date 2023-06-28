@@ -1,12 +1,8 @@
 #Stop following command execution if command before failed
 set -e
 
-#Check if firebase is installed
-firebase projects:list  
-
 #Ask for project and folder
-read -p "Project (default: empowerment-circle): " project
-project=${project:-empowerment-circle}
+project=$(jq -r '.projects.default' ../.firebaserc)
 folder="seed"
 
 #Set project
