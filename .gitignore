@@ -68,3 +68,4 @@ node_modules/
 # flutterflow
 flutterflow/
 .dart_tool/
+.DS_Store
