@@ -9,4 +9,7 @@ typings/
 node_modules/
 
 
-firestore-export/
+seed/
+lib/
+
+**-debug.log
