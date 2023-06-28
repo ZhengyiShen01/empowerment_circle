@@ -68,12 +68,12 @@ exports.updateOnConnectionCreated = onDocumentCreated(
 
     // Update the receiver document
     await receiverRef.update({
-      connections: FieldValue.arrayUnion(snapshot?.ref),
+      connections: FieldValue.arrayUnion(senderRef),
     });
 
     // Update the sender document
     await senderRef.update({
-      connections: FieldValue.arrayUnion(snapshot?.ref),
+      connections: FieldValue.arrayUnion(receiverRef),
     });
   }
 );
