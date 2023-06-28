@@ -9,7 +9,8 @@
     "start": "npm run shell",
     "deploy": "eslint --fix . | firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "emulator": "firebase emulators:start --import ./firestore-export"
+    "emulator": "[ ! -d './seed' ] && ./seed.bash; firebase emulators:start --import ./seed",
+    "reset-ports": "lsof -i -P -n | grep LISTEN | grep 127.0.0.1 | awk '{print $2}' | xargs kill -9"
   },
   "engines": {
     "node": "18"
