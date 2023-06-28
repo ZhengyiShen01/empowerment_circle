@@ -1,17 +1,22 @@
+/* eslint-disable camelcase */
 import {
   onDocumentCreated,
   onDocumentWritten,
 } from "firebase-functions/v2/firestore";
 import {initializeApp} from "firebase-admin/app";
 import {getFirestore, FieldValue} from "firebase-admin/firestore";
+import {getStorage} from "firebase-admin/storage";
+// import serviceAccount from "./path/to/serviceAccountKey.json";
+
+import axios from "axios";
 
 initializeApp();
 const db = getFirestore();
 
-exports.updateOnNoteChange = onDocumentWritten(
+exports.updateMemeberAndCreateNotificationOnNoteCreated = onDocumentCreated(
   "notes/{noteId}",
   async (event) => {
-    const noteData = event?.data?.after?.data();
+    const noteData = event?.data?.data();
     if (noteData) {
       const taskRef = noteData.taskRef;
       const taskDoc = await taskRef.get();
@@ -27,7 +32,7 @@ exports.updateOnNoteChange = onDocumentWritten(
         const projectData = projectDoc.data();
         if (projectData) {
           await projectRef.update({
-            isAssigned: FieldValue.arrayUnion(noteData.owner),
+            usersAssigned: FieldValue.arrayUnion(noteData.owner),
           });
 
           const newActivity = {
@@ -56,24 +61,45 @@ exports.updateOnNoteChange = onDocumentWritten(
   }
 );
 
-exports.updateOnConnectionCreated = onDocumentCreated(
+exports.updateUserConnectionsOnConnectionCreated = onDocumentCreated(
   "connections/{connectionsId}",
   async (event) => {
-    const snapshot = event.data;
-    const connectionData = snapshot?.data();
-
-    console.log();
+    const connectionData = event.data?.data();
     const receiverRef = connectionData?.receiver;
     const senderRef = connectionData?.sender;
 
-    // Update the receiver document
     await receiverRef.update({
       connections: FieldValue.arrayUnion(senderRef),
     });
 
-    // Update the sender document
     await senderRef.update({
       connections: FieldValue.arrayUnion(receiverRef),
     });
+  }
+);
+
+exports.generateLetterAvatarOnUserCreated = onDocumentWritten(
+  "users/{userId}",
+  async (event) => {
+    const userDoc = event.data?.after;
+    const userRef = userDoc?.ref;
+    const userData = userDoc?.data();
+
+    const photo_url = userData?.photo_url;
+    const display_name = userData?.display_name?.replace(/ /g, "+");
+
+    if (!photo_url) {
+      const url = `https://ui-avatars.com/api/?name=${display_name}`;
+      const response = await axios.get(url, {responseType: "arraybuffer"});
+
+      const filePath = `/profile_images/${event.params.userId}.png`;
+      const bucket = getStorage().bucket();
+      const file = bucket.file(filePath);
+      await file.save(response.data, {
+        metadata: {contentType: "image/png"},
+      });
+
+      await userRef?.update({photo_url: file.publicUrl()});
+    }
   }
 );
