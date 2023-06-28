@@ -1,4 +1,7 @@
-import {onDocumentWritten} from "firebase-functions/v2/firestore";
+import {
+  onDocumentCreated,
+  onDocumentWritten,
+} from "firebase-functions/v2/firestore";
 import {initializeApp} from "firebase-admin/app";
 import {getFirestore, FieldValue} from "firebase-admin/firestore";
 
@@ -50,5 +53,27 @@ exports.updateOnNoteChange = onDocumentWritten(
         }
       }
     }
+  }
+);
+
+exports.updateOnConnectionCreated = onDocumentCreated(
+  "connections/{connectionsId}",
+  async (event) => {
+    const snapshot = event.data;
+    const connectionData = snapshot?.data();
+
+    console.log();
+    const receiverRef = connectionData?.receiver;
+    const senderRef = connectionData?.sender;
+
+    // Update the receiver document
+    await receiverRef.update({
+      connections: FieldValue.arrayUnion(snapshot?.ref),
+    });
+
+    // Update the sender document
+    await senderRef.update({
+      connections: FieldValue.arrayUnion(snapshot?.ref),
+    });
   }
 );
