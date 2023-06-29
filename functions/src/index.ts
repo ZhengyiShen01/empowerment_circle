@@ -3,17 +3,22 @@ import {
   onDocumentCreated,
   onDocumentWritten,
 } from "firebase-functions/v2/firestore";
-import {initializeApp} from "firebase-admin/app";
+import {initializeApp, cert} from "firebase-admin/app";
 import {getFirestore, FieldValue} from "firebase-admin/firestore";
 import {getStorage} from "firebase-admin/storage";
-// import serviceAccount from "./path/to/serviceAccountKey.json";
 
 import axios from "axios";
 
-initializeApp();
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const serviceAccount = require("../serviceAccountKey.json");
+
+initializeApp({
+  credential: cert(serviceAccount),
+  storageBucket: "empowerment-circle.appspot.com",
+});
 const db = getFirestore();
 
-exports.updateMemeberAndCreateNotificationOnNoteCreated = onDocumentCreated(
+exports.updateOnNoteCreated = onDocumentCreated(
   "notes/{noteId}",
   async (event) => {
     const noteData = event?.data?.data();
@@ -61,7 +66,7 @@ exports.updateMemeberAndCreateNotificationOnNoteCreated = onDocumentCreated(
   }
 );
 
-exports.updateUserConnectionsOnConnectionCreated = onDocumentCreated(
+exports.updateUserConnections = onDocumentCreated(
   "connections/{connectionsId}",
   async (event) => {
     const connectionData = event.data?.data();
@@ -78,28 +83,55 @@ exports.updateUserConnectionsOnConnectionCreated = onDocumentCreated(
   }
 );
 
-exports.generateLetterAvatarOnUserCreated = onDocumentWritten(
-  "users/{userId}",
+exports.createUserPhoto = onDocumentCreated("users/{userId}", async (event) => {
+  const userDoc = event.data;
+  const userRef = userDoc?.ref;
+  const userData = userDoc?.data();
+
+  const photo_url = userData?.photo_url;
+  const display_name = userData?.display_name?.replace(/ /g, "+");
+
+  if (!photo_url) {
+    const url = `https://ui-avatars.com/api/?name=${display_name}`;
+    const response = await axios.get(url, {responseType: "arraybuffer"});
+
+    const filePath = "profile_images/" + event.params.userId;
+    const file = getStorage().bucket().file(filePath);
+    await file.save(response.data, {
+      metadata: {
+        contentType: "image/png",
+      },
+    });
+
+    const urlOptions = {
+      action: "read" as const, // Specify the action as 'read'
+      expires: Date.now() + 1000 * 60 * 60 * 24 * 365, // One year
+    };
+
+    const signedUrl = await file.getSignedUrl(urlOptions);
+    await userRef?.update({
+      photo_url: signedUrl[0],
+    });
+  }
+});
+
+exports.updateUserSubscription = onDocumentWritten(
+  "users/{userId}/subscriptions/{subscriptionId}",
   async (event) => {
-    const userDoc = event.data?.after;
-    const userRef = userDoc?.ref;
-    const userData = userDoc?.data();
+    const subscriptionDoc = event.data?.after;
+    const subscriptionData = subscriptionDoc?.data();
+    const role = subscriptionData?.role;
+    const status = subscriptionData?.status;
 
-    const photo_url = userData?.photo_url;
-    const display_name = userData?.display_name?.replace(/ /g, "+");
+    console.log("hi");
 
-    if (!photo_url) {
-      const url = `https://ui-avatars.com/api/?name=${display_name}`;
-      const response = await axios.get(url, {responseType: "arraybuffer"});
+    const userRef = subscriptionDoc?.ref.parent.parent;
 
-      const filePath = `/profile_images/${event.params.userId}.png`;
-      const bucket = getStorage().bucket();
-      const file = bucket.file(filePath);
-      await file.save(response.data, {
-        metadata: {contentType: "image/png"},
-      });
-
-      await userRef?.update({photo_url: file.publicUrl()});
-    }
+    await userRef?.update({
+      subscription: {
+        role: role,
+        status: status,
+      },
+    });
   }
 );
