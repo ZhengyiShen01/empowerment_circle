@@ -83,8 +83,8 @@ exports.updateUserConnections = onDocumentCreated(
   }
 );
 
-exports.createUserPhoto = onDocumentCreated("users/{userId}", async (event) => {
-  const userDoc = event.data;
+exports.createUserPhoto = onDocumentWritten("users/{userId}", async (event) => {
+  const userDoc = event.data?.after;
   const userRef = userDoc?.ref;
   const userData = userDoc?.data();
 
