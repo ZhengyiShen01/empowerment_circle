@@ -1,15 +1,12 @@
-/* eslint-disable camelcase */
 import {
   onDocumentCreated,
   onDocumentWritten,
 } from "firebase-functions/v2/firestore";
-import {initializeApp, cert} from "firebase-admin/app";
-import {getFirestore, FieldValue} from "firebase-admin/firestore";
-import {getStorage} from "firebase-admin/storage";
-
+import { initializeApp, cert } from "firebase-admin/app";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
 import axios from "axios";
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const serviceAccount = require("../serviceAccountKey.json");
 
 initializeApp({
@@ -93,7 +90,7 @@ exports.createUserPhoto = onDocumentWritten("users/{userId}", async (event) => {
 
   if (!photo_url) {
     const url = `https://ui-avatars.com/api/?name=${display_name}`;
-    const response = await axios.get(url, {responseType: "arraybuffer"});
+    const response = await axios.get(url, { responseType: "arraybuffer" });
 
     const filePath = "profile_images/" + event.params.userId;
     const file = getStorage().bucket().file(filePath);
