@@ -1,5 +1,1 @@
-project_id="<project id>"
-output_folder="<output folder>"
-token="<token>"
-
-flutterflow export-code --project $project_id --dest $output_folde --[no-]include-assets --token $token
+flutterflow export-code --project empowerment-circle-oi0986 --dest . --token c65afde8-8f4c-4f7a-a5bb-e0b671945512

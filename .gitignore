@@ -66,6 +66,6 @@ node_modules/
 .env
 
 # flutterflow
-flutterflow/
+flutter/
 .dart_tool/
 .DS_Store
