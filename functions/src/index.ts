@@ -45,6 +45,7 @@ exports.updateOnNoteCreated = onDocumentCreated(
             activityType: taskData.taskName,
             otherUser: noteData.owner,
             projectRef: projectRef,
+            taskRef: taskRef,
             targetUserRef: taskData.members,
             unreadByUser: taskData.members,
           };
