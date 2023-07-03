@@ -67,5 +67,7 @@ node_modules/
 
 # flutterflow
 flutter/
+flutterflow/
+empowerment_circle/
 .dart_tool/
 .DS_Store

@@ -39,7 +39,7 @@
     "rules": "storage.rules"
   },
   "hosting": {
-    "source": "flutter/build/web",
+    "source": "empowerment_circle",
     "ignore": [
       "firebase.json",
       "**/.*",
