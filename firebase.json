@@ -1,4 +1,8 @@
 {
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
   "functions": [
     {
       "source": "functions",
@@ -8,45 +12,19 @@
         ".git",
         "firebase-debug.log",
         "firebase-debug.*.log"
-      ],
-      "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run build"
       ]
     }
   ],
   "emulators": {
-    "auth": {
-      "port": 9099
-    },
     "functions": {
       "port": 5001
     },
     "firestore": {
       "port": 8080
     },
-    "database": {
-      "port": 9000
-    },
-    "hosting": {
-      "port": 5000
-    },
     "ui": {
       "enabled": true
     },
     "singleProjectMode": true
-  },
-  "storage": {
-    "rules": "storage.rules"
-  },
-  "hosting": {
-    "source": "empowerment_circle",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "frameworksBackend": {
-      "region": "us-central1"
-    }
   }
 }

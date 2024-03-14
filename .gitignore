@@ -65,9 +65,6 @@ node_modules/
 # dotenv environment variables file
 .env
 
-# flutterflow
-flutter/
-flutterflow/
-empowerment_circle/
-.dart_tool/
+
+# Others
 .DS_Store

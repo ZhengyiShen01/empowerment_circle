@@ -1,3 +1,8 @@
+# Initiation: chmod +x seed.bash
+# Require gcloud and firebase tools
+# gcloud installation instruction: https://cloud.google.com/sdk/docs/install
+# run `gcloud auth login` to authenticate
+
 #Stop following command execution if command before failed
 set -e
 
