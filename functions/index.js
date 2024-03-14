@@ -26,6 +26,7 @@ exports.confirmFriendship = functions.firestore
     }
   });
 
+//
 exports.spreadStory = functions.firestore
   .document("stories/{storyId}")
   .onWrite(async (change, context) => {
