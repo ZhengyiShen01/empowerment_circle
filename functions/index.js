@@ -6,7 +6,7 @@ admin.initializeApp();
 const db = admin.firestore();
 
 exports.confirmFriendship = functions.firestore
-  .document("friend_requests/{requestId}")
+  .document("friend_requests/{friendRequestId}")
   .onUpdate(async (change, context) => {
     const previousData = change.before.data();
     const currentData = change.after.data();
@@ -26,39 +26,76 @@ exports.confirmFriendship = functions.firestore
     }
   });
 
-exports.spreadNewStory = functions.firestore
-  .document("stories/{storyId}")
-  .onWrite(async (change, context) => {
-    // ToDo: change to onCreate
-    const doc = change.after;
-    const data = doc.data();
-    const receivers = data.receivers || [];
-    const users = data.visible_to; // ToDo: rename to `send_to`
+exports.onNewsMessageCreated = functions.firestore
+  .document("news_messages/{newsMessageId}")
+  .onCreate(async (snapshot, context) => {
+    const data = snapshot.data();
+    const users = data.send_to;
+    const storyRef = data.story_ref;
+    const storyDoc = await storyRef.get();
+    const storyData = storyDoc.data();
+    const receivers = storyData.receivers || [];
 
-    if (doc.exists && users && users.length > 0) {
-      const newReceivers = users.filter(
-        (user) => !receivers.some((receiver) => receiver.path === user.path) // select only new users
-      );
-      const updatedReceivers = [...receivers, ...newReceivers];
+    const newReceivers = users.filter(
+      (user) => !receivers.some((receiver) => receiver.path === user.path) // select only new users
+    );
 
-      newReceivers.map(async (user) => {
-        try {
-          const userNewsCollection = db.collection(`users/${user.id}/news`);
-          await userNewsCollection.add({
-            title: data.title,
-            created_by: data.created_by,
-            created_at: data.created_at,
-            type: data.type,
-            story_ref: doc.ref,
-          });
-        } catch (error) {
-          functions.logger.error(error);
-        }
-      });
-
-      await doc.ref.set(
-        { visible_to: [], receivers: updatedReceivers },
-        { merge: true }
-      );
+    if (!newReceivers || newReceivers.length === 0) {
+      return;
     }
+
+    const updatedReceivers = [...receivers, ...newReceivers];
+
+    newReceivers.map(async (user) => {
+      try {
+        functions.logger.info("User: ", user.id);
+        const userNewsCollection = db.collection(`users/${user.id}/news`);
+        await userNewsCollection.add({
+          title: storyData.title,
+          created_by: storyData.created_by,
+          created_at: storyData.created_at,
+          type: storyData.type,
+          story_ref: storyRef,
+        });
+      } catch (error) {
+        functions.logger.error(error);
+      }
+    });
+
+    await storyRef.set({ receivers: updatedReceivers }, { merge: true });
+  });
+
+exports.onSharedStoryCreated = functions.firestore
+  .document("shared_stories/{sharedStoryId}")
+  .onCreate(async (snapshot, context) => {
+    const storyData = snapshot.data();
+    const involvedBy = storyData.involved_by || [];
+    const createdBy = storyData.created_by;
+
+    const db = admin.firestore();
+    // Get the current user's contacts that are in the provided list
+    const currentUserRef = db.doc(createdBy.path);
+    const contactsQuery = currentUserRef
+      .collection("contacts")
+      .where("user_ref", "in", involvedBy);
+    const contactsSnapshot = await contactsQuery.get();
+
+    // Batch write story information into each shared stories
+    const batch = db.batch();
+
+    for (const contactDoc of contactsSnapshot.docs) {
+      const sharedStoryRef = contactDoc.data().story_ref;
+      const messageRef = sharedStoryRef.collection("messages").doc();
+
+      // Set the message data with the provided story
+      batch.set(messageRef, {
+        content: storyData.title,
+        created_by: storyData.created_by,
+        created_at: storyData.created_at,
+        story_ref: storyData.story_ref,
+        story_type: storyData.story_type,
+      });
+    }
+
+    await batch.commit();
   });
