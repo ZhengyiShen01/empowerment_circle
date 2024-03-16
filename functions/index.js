@@ -26,8 +26,8 @@ exports.confirmFriendship = functions.firestore
     }
   });
 
-exports.onNewsMessageCreated = functions.firestore
-  .document("news_messages/{newsMessageId}")
+exports.onStoryNewsCreated = functions.firestore
+  .document("story_news/{storyNewsId}")
   .onCreate(async (snapshot, context) => {
     const data = snapshot.data();
     const users = data.send_to;
@@ -68,23 +68,35 @@ exports.onNewsMessageCreated = functions.firestore
 exports.onSharedStoryCreated = functions.firestore
   .document("shared_stories/{sharedStoryId}")
   .onCreate(async (snapshot, context) => {
-    const storyData = snapshot.data();
-    const involvedBy = storyData.involved_by || [];
-    const createdBy = storyData.created_by;
-
+    const data = snapshot.data();
     const db = admin.firestore();
+
+    // Get the story data and the list of contacts to share with
+    const storyRef = db.doc(data.story_ref.path);
+    const storyDoc = await storyRef.get();
+    const storyData = storyDoc.data();
+    const createdBy = storyData.created_by;
+    const involvedBy = storyData.involved_by;
+
+    if (!involvedBy || involvedBy.length === 0) {
+      return;
+    }
+
     // Get the current user's contacts that are in the provided list
     const currentUserRef = db.doc(createdBy.path);
     const contactsQuery = currentUserRef
       .collection("contacts")
-      .where("user_ref", "in", involvedBy);
+      .where("user_ref", "in", involvedBy)
+      .where("is_friend", "==", true);
     const contactsSnapshot = await contactsQuery.get();
 
     // Batch write story information into each shared stories
     const batch = db.batch();
 
     for (const contactDoc of contactsSnapshot.docs) {
+      functions.logger.info(contactDoc.data().display_name);
       const sharedStoryRef = contactDoc.data().story_ref;
+      functions.logger.info(sharedStoryRef);
       const messageRef = sharedStoryRef.collection("messages").doc();
 
       // Set the message data with the provided story
@@ -92,8 +104,8 @@ exports.onSharedStoryCreated = functions.firestore
         content: storyData.title,
         created_by: storyData.created_by,
         created_at: storyData.created_at,
-        story_ref: storyData.story_ref,
-        story_type: storyData.story_type,
+        story_type: storyData.type,
+        story_ref: storyRef,
       });
     }
 
