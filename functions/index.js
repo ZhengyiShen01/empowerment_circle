@@ -54,8 +54,9 @@ exports.onStoryNewsCreated = functions.firestore
           title: storyData.title,
           created_by: storyData.created_by,
           created_at: storyData.created_at,
-          type: storyData.type,
+          story_type: storyData.type,
           story_ref: storyRef,
+          archive: false,
         });
       } catch (error) {
         functions.logger.error(error);
