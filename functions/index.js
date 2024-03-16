@@ -26,10 +26,10 @@ exports.confirmFriendship = functions.firestore
     }
   });
 
-//
-exports.spreadStory = functions.firestore
+exports.spreadNewStory = functions.firestore
   .document("stories/{storyId}")
   .onWrite(async (change, context) => {
+    // ToDo: change to onCreate
     const doc = change.after;
     const data = doc.data();
     const receivers = data.receivers || [];
