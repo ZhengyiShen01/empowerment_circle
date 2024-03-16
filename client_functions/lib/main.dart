@@ -60,7 +60,7 @@ Future<List<String>?> addSharedStory(
   final batchWrite = db.batch();
   final contactsSnapshot = await contactsQuery.get();
   for (final contactDoc in contactsSnapshot.docs) {
-    print(contactDoc.data()?['display_name']);
+    print(contactDoc.data()['display_name']);
     final sharedStoryRef = contactDoc.data()['story_ref'];
     try {
       final messageRef = sharedStoryRef.collection('messages').doc();
@@ -92,7 +92,7 @@ Future<List<String>> getUsernames() async {
   return usernames;
 }
 
-final testFunction = addSharedStory; // Assign the function for testing
+const testFunction = getUsernames; // Assign the function for testing
 
 // ADD YOUR CUSTOM FUNCTION CODE ABOVE.
 // DO NOT REMOVE OR MODIFY THE CODE BELOW!
@@ -102,13 +102,15 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'Firebase Test',
       home: TestScreen(),
     );
@@ -116,6 +118,8 @@ class MyApp extends StatelessWidget {
 }
 
 class TestScreen extends StatefulWidget {
+  const TestScreen({super.key});
+
   @override
   _TestScreenState createState() => _TestScreenState();
 }
@@ -158,18 +162,18 @@ class _TestScreenState extends State<TestScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Custom Function'),
+        title: const Text('Custom Function'),
       ),
       body: Column(
         children: [
           ElevatedButton(
             onPressed:
                 _fetchData, // Update state to trigger rebuild with new data
-            child: Text('Test'),
+            child: const Text('Test'),
           ),
           Expanded(
             child: itemsToDisplay == null // Check if data is fetched
-                ? Center(
+                ? const Center(
                     child: CircularProgressIndicator(),
                   )
                 : ListView.builder(
