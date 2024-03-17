@@ -20,8 +20,13 @@ Future<List<String>?> fetchContact() async {
                 ?.trim()
                 .replaceAll(RegExp(r'[^\w+]+'), '');
             ;
-            print(phoneNumber);
-            return phoneNumber;
+            // Get the phone number in the US.
+            if (phoneNumber.startsWith('+1')) {
+              print(phoneNumber);
+              return phoneNumber;
+            } else {
+              return null;
+            }
           }
         })
         .whereType<String>()
