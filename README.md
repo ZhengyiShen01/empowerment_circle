@@ -57,3 +57,68 @@ Select the device to be `web` for quicker compilation.
 For FlutterFlow developers, understanding the flutter project can be challenging and unnecessary. So I created this [**Flutter Template**](./client_functions/lib/main.dart) for you to develop your FlutterFlow custom actions right away.
 
 Spend a few minutes going through the template and you can save yourself from waiting 5 minutes every time in the compilation process with a clearer debugging log.
+
+## Debugging Flutter on Android
+
+### Flutter Doctor Error
+
+```bash
+flutter doctor -v # Check the status of your Flutter project
+✗ Unable to find bundled Java version.
+```
+
+Solution:
+
+```bash
+cd /Applications/Android\ Studio.app/Contents
+sudo ln -s jbr jre
+```
+
+`android/app/build.gradle`:
+
+```gradle
+android {
+    defaultConfig {
+        // Other configurations...
+        multiDexEnabled true  // Enable MultiDex
+    }
+
+    // Other configurations...
+
+    dependencies {
+    implementation 'com.android.support:multidex:1.0.3'  // Add MultiDex
+    }
+}
+```
+
+### Permission Error
+
+Add these permissions to `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.READ_CONTACTS" />  // Add these permissions
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />   // Add these permissions
+
+    <application>
+        <!-- Other configurations... -->
+    </application>
+</manifest>
+```
+
+User package `permission_handler` to request permissions.
+
+Add dependencies in `pubspec.yaml`:
+
+```yaml
+dependencies:
+  permission_handler: ^11.0.0
+```
+
+Wrap your code with the permission handler.
+
+```dart
+if (await Permission.contacts.request().isGranted) {
+  // Either the permission was already granted before or the user just granted it.
+}
+```

@@ -1,24 +1,31 @@
+import 'dart:math';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contacts_service/contacts_service.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 Future<List<String>?> fetchContact() async {
   // Fetch contacts using ContactsService
-  List<Contact> contacts =
-      await ContactsService.getContacts(withThumbnails: false);
-  print('Contacts: $contacts');
+  if (await Permission.contacts.request().isGranted) {
+    List<Contact> contacts =
+        await ContactsService.getContacts(withThumbnails: false);
 
-  return ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
-
-  // Map contacts to ContactsStruct objects, handling null cases
-  // return contacts.map((contact) {
-  //   String? phoneNumber = contact.phones?.first.value
-  //       ?.trim()
-  //       .replaceAll(new RegExp(r'[^\w\s]+'), '');
-
-  //   // Handle null cases for phone number and display name
-  //   if (phoneNumber == null) {
-  //     return ''; // Omit contacts with missing data
-  //   }
-
-  //   return phoneNumber;
-  // }).toList();
+    return contacts
+        .map((contact) {
+          List<dynamic>? contactPhones = contact.phones;
+          if (contactPhones == null || contactPhones.length == 0) {
+            return null;
+          } else {
+            String phoneNumber = contactPhones.first.value
+                ?.trim()
+                .replaceAll(RegExp(r'[^\w+]+'), '');
+            ;
+            print(phoneNumber);
+            return phoneNumber;
+          }
+        })
+        .whereType<String>()
+        .toList();
+  }
+  return null;
 }

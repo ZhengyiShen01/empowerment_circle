@@ -14,7 +14,7 @@ const testFunction = fetchContact; // Add your custom function here.
 // DO NOT REMOVE OR MODIFY THE CODE BELOW!
 
 void main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
