@@ -122,3 +122,9 @@ if (await Permission.contacts.request().isGranted) {
   // Either the permission was already granted before or the user just granted it.
 }
 ```
+
+## Slow Xcode Build
+
+Firebase/Firestore is a heavy package and it takes a long time to compile.
+
+[User Precompiled SDK](https://github.com/invertase/firestore-ios-sdk-frameworks#supported-firebase-ios-sdk-versions) to speed up the compilation process.

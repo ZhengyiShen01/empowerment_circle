@@ -6,7 +6,6 @@ import './firebase_options.dart';
 // DO NOT REMOVE OR MODIFY THE CODE ABOVE!
 // ADD YOUR CUSTOM IMPORTS HERE
 import 'get_usernames.dart';
-import 'add_shared_story.dart';
 import 'fetch_contact.dart';
 
 const testFunction = fetchContact; // Add your custom function here.
