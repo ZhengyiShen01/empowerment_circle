@@ -4,8 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import 'package:contacts_service/contacts_service.dart';
+import 'package:permission_handler/permission_handler.dart';
+
 Future<List<String>?> fetchContact() async {
-  // Fetch contacts using ContactsService
   if (await Permission.contacts.request().isGranted) {
     List<Contact> contacts =
         await ContactsService.getContacts(withThumbnails: false);
