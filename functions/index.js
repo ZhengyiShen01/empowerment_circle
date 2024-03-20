@@ -5,7 +5,7 @@ admin.initializeApp();
 
 const db = admin.firestore();
 
-exports.confirmFriendship = functions.firestore
+exports.acceptFriendship = functions.firestore
   .document("friend_requests/{friendRequestId}")
   .onUpdate(async (change, context) => {
     const previousData = change.before.data();
@@ -23,6 +23,16 @@ exports.confirmFriendship = functions.firestore
       } catch (error) {
         functions.logger.error(error);
       }
+    }
+  });
+
+exports.rejectFriendship = functions.firestore
+  .document("friend_requests/{friendRequestId}")
+  .onUpdate(async (change, context) => {
+    const previousData = change.before.data();
+    const currentData = change.after.data();
+    if (currentData.status == "Rejected" && previousData.status == "Pending") {
+      await currentData.contact_ref.delete();
     }
   });
 
@@ -95,17 +105,16 @@ exports.onSharedStoryCreated = functions.firestore
     const batch = db.batch();
 
     for (const contactDoc of contactsSnapshot.docs) {
-      functions.logger.info(contactDoc.data().display_name);
       const sharedStoryRef = contactDoc.data().story_ref;
-      functions.logger.info(sharedStoryRef);
+      functions.logger.info("Shared Story: ", sharedStoryRef.path);
       const messageRef = sharedStoryRef.collection("messages").doc();
 
       // Set the message data with the provided story
       batch.set(messageRef, {
         content: storyData.title,
         created_by: storyData.created_by,
-        created_at: storyData.created_at,
         story_type: storyData.type,
+        created_at: data.created_at,
         story_ref: storyRef,
       });
     }
