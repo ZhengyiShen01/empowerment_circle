@@ -145,3 +145,53 @@ end
 Change the version `10.22.0` based on the Firebase/Firestore version in the `ios/Podfile.lock`.
 
 Then remove the `ios/Podfile.lock`.
+
+## Fix the firebase initialization error in the exported FlutterFlow project
+
+Add these two lines in the `lib/backend/firebase/firebase_config.dart`
+
+```dart
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
+import '../../firebase_options.dart'; // add this line
+
+Future initFirebase() async {
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+        options: FirebaseOptions(
+            apiKey: "AIzaSyCFQMBb_QbX-BmM6ZPXC2j6jQhcx6I1svw",
+            authDomain: "salt-8c0bb.firebaseapp.com",
+            projectId: "salt-8c0bb",
+            storageBucket: "salt-8c0bb.appspot.com",
+            messagingSenderId: "998918621005",
+            appId: "1:998918621005:web:f76bde45b0778cd6b0d904",
+            measurementId: "G-XFWEHJR6PX"));
+  } else {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform, // add this line
+    );
+  }
+}
+```
+
+The run following command to configure the Firebase project if you haven't done it yet.
+
+```bash
+flutterfire configure
+```
+
+An alternative way is to add the `value.xml` file under the path `android/app/src/main/res/values/values.xml` in the structure below.
+
+```xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="google_api_key" translatable="false">YOUR_GOOGLE_API_KEY</string>
+    <string name="gcm_defaultSenderId" translatable="false">YOUR_SENDER_ID</string>
+    <string name="google_app_id" translatable="false">YOUR_APP_ID</string>
+    <string name="google_crash_reporting_api_key" translatable="false">YOUR_CRASH_REPORTING_API_KEY</string>
+    <string name="google_storage_bucket" translatable="false">YOUR_STORAGE_BUCKET</string>
+    <string name="project_id" translatable="false">YOUR_PROJECT_ID</string>
+</resources>
+
+```
