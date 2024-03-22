@@ -128,3 +128,20 @@ if (await Permission.contacts.request().isGranted) {
 Firebase/Firestore is a heavy package and it takes a long time to compile.
 
 [User Precompiled SDK](https://github.com/invertase/firestore-ios-sdk-frameworks#supported-firebase-ios-sdk-versions) to speed up the compilation process.
+
+in `ios/Podfile`
+
+```ruby
+target 'Runner' do
+  use_frameworks!
+  use_modular_headers!
+
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+
+  pod 'FirebaseFirestore', :git => 'https://github.com/invertase/firestore-ios-sdk-frameworks.git', :tag => '10.22.0'  # Add this line
+end
+```
+
+Change the version `10.22.0` based on the Firebase/Firestore version in the `ios/Podfile.lock`.
+
+Then remove the `ios/Podfile.lock`.
